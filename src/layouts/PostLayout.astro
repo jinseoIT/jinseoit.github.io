@@ -1,0 +1,27 @@
+---
+import Main from "../layouts/MainLayout.astro";
+import Markdown from "../components/Markdown.astro";
+
+interface Props {
+  title: string;
+}
+
+const { title } = Astro.props;
+---
+
+<Main title={title}>
+  <div class="article-wrapper">
+    <div class="article">
+      <Markdown>
+        <slot />
+      </Markdown>
+    </div>
+  </div>
+</Main>
+
+<style>
+  .article {
+    margin: 0px auto;
+    max-width: 800px;
+  }
+</style>

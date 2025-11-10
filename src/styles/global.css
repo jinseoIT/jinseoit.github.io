@@ -1,0 +1,167 @@
+/*
+  The CSS in this style tag is based off of Bear Blog's default CSS.
+  https://github.com/HermanMartinus/bearblog/blob/297026a877bc2ab2b3bdfbd6b9f7961c350917dd/templates/styles/blog/default.css
+  License MIT: https://github.com/HermanMartinus/bearblog/blob/master/LICENSE.md
+ */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: "Pretendard";
+  src: url("/fonts/Pretendard-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Pretendard";
+  src: url("/fonts/Pretendard-Medium.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Pretendard";
+  src: url("/fonts/Pretendard-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* 기본 색상 변수 (필수) */
+:root {
+  --gray: 96, 115, 159;
+  --gray-dark: 34, 41, 57;
+  --box-shadow:
+    0 2px 4px rgba(var(--gray), 4%), 0 4px 8px rgba(var(--gray), 15%),
+    0 4px 8px rgba(var(--gray), 15%);
+
+  --black: #060b11;
+  --black_48: #060b117a;
+
+  /* OKLCH Color System */
+  --hue: 160;
+  --primary-color: #66cdaa; /* 민트 그린 톤 */
+  --primary-color-lighten: #e8f5f0;
+  --primary-color-hover: #b8e6d3;
+  --primary-color-transparent: rgba(102, 205, 170, 0.15);
+  --text-color: oklch(30% 0 0);
+  --card-color: oklch(100% 0 0);
+  --brand-font: "Pretendard", sans-serif;
+  --code-font: "JetBrains Mono", "Fira Code", monospace;
+}
+
+/* 다크 테마에서 기존 색상 조정 */
+[data-theme="dark"] {
+  --black: #f8fafc;
+  --black_48: #f8fafc7a;
+  --text-color: oklch(90% 0 0);
+  --card-color: oklch(20% 0 0);
+}
+
+/* 다크 테마 색상 오버라이드 */
+[data-theme="dark"] .bg-theme-bg {
+  background-color: #0f172a !important;
+}
+
+[data-theme="dark"] .bg-theme-bg-secondary {
+  background-color: #1e293b !important;
+}
+
+[data-theme="dark"] .text-theme-primary {
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .text-theme-secondary {
+  color: #cbd5e1 !important;
+}
+
+[data-theme="dark"] .text-theme-muted {
+  color: #64748b !important;
+}
+
+[data-theme="dark"] .border-theme-border {
+  border-color: #334155 !important;
+}
+
+[data-theme="dark"] .hover\:bg-theme-hover:hover {
+  background-color: #1e293b !important;
+}
+
+[data-theme="dark"] .hover\:bg-theme-hover:focus {
+  background-color: #1e293b !important;
+}
+
+/* 기본 스타일 */
+body {
+  @apply font-pretendard bg-theme-bg text-theme-primary m-0 overflow-x-hidden p-0 text-left text-base leading-7;
+  background-size: 100% 600px;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  text-rendering: optimizeSpeed;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
+}
+
+img,
+video {
+  @apply block h-auto max-w-full;
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+}
+
+* {
+  @apply box-border;
+}
+
+html {
+  @apply scroll-smooth;
+  text-size-adjust: 100%;
+}
+
+img {
+  aspect-ratio: attr(width) / attr(height);
+}
+
+/* 애니메이션 최적화 */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* 모바일 최적화 */
+@media (max-width: 768px) {
+  body {
+    @apply text-sm;
+  }
+
+  * {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  button,
+  a {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+/* 테마 전환 애니메이션 */
+* {
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease,
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
+}

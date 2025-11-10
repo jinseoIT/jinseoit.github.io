@@ -1,0 +1,28 @@
+---
+// Component imports
+import MainLayout from "../layouts/MainLayout.astro";
+import { SITE_TITLE } from "../constants/site";
+// Utils
+import type { PaginateFunction } from "astro";
+import { GetSortedPosts } from "../components/tagList/content";
+import TagList from "../components/tagList/index.astro";
+
+export async function getStaticPaths({
+  paginate,
+}: {
+  paginate: PaginateFunction;
+}) {
+  const postCollections = await GetSortedPosts();
+  return paginate(postCollections, { pageSize: 5 });
+}
+
+const allPosts = await GetSortedPosts();
+---
+
+<MainLayout title={SITE_TITLE}>
+  <main class="w-full">
+    <section class="flex flex-col">
+      <TagList allPosts={allPosts} />
+    </section>
+  </main>
+</MainLayout>

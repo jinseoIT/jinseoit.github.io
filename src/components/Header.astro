@@ -1,0 +1,31 @@
+---
+import ThemeToggle from "./ThemeToggle.astro";
+import GitHub from "../assets/icons/GitHub.astro";
+---
+
+<header
+  class="border-theme-border bg-theme-bg fixed left-0 right-0 top-0 z-10 h-12 border-b backdrop-blur-sm"
+>
+  <div class="mx-auto h-full max-w-layout">
+    <div class="flex h-full items-center justify-between pl-6 pr-2">
+      <a
+        href="/"
+        class="text-theme-primary hover:text-primary flex items-center text-xl font-bold transition-colors duration-300"
+      >
+        jinseoit
+      </a>
+      <div class="flex items-center">
+        <a
+          href="https://github.com/jinseoit"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="text-theme-primary hover:bg-theme-hover transition-theme group relative flex items-center justify-center overflow-hidden rounded-lg border-0 p-2 duration-200 hover:scale-105 focus:outline-none focus:ring-0"
+          aria-label="GitHub"
+        >
+          <GitHub />
+        </a>
+        <ThemeToggle />
+      </div>
+    </div>
+  </div>
+</header>

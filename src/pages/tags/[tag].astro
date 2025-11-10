@@ -1,0 +1,56 @@
+---
+import Main from "../../layouts/MainLayout.astro";
+import { GetSortedPosts } from "../../components/tagList/content";
+import TagList from "../../components/tagList/index.astro";
+
+export async function getStaticPaths() {
+  const allPosts = await GetSortedPosts();
+  const tags = new Set<string>();
+
+  // 모든 태그 수집
+  allPosts.forEach((post) => {
+    post.data.tags?.forEach((tag) => {
+      tags.add(tag);
+    });
+  });
+
+  // 각 태그별로 경로 생성
+  return Array.from(tags).map((tag) => ({
+    params: { tag },
+    props: { tag, allPosts },
+  }));
+}
+
+const { tag, allPosts } = Astro.props;
+---
+
+<Main>
+  <main class="content">
+    <section class="flex flex-col">
+      <TagList allPosts={allPosts} initialTag={tag} />
+    </section>
+  </main>
+</Main>
+
+<script>
+  // 페이지 로드 시 해당 태그로 필터링
+  document.addEventListener("DOMContentLoaded", () => {
+    const tagButtons = document.querySelectorAll(
+      ".tag-btn",
+    ) as NodeListOf<HTMLButtonElement>;
+    const targetTag = "{{ tag }}"; // Astro 템플릿 변수
+
+    // 해당 태그 버튼 찾기 및 클릭
+    tagButtons.forEach((btn) => {
+      if (btn.dataset.tag === targetTag) {
+        btn.click();
+      }
+    });
+  });
+</script>
+
+<style>
+  .content {
+    width: 100%;
+  }
+</style>

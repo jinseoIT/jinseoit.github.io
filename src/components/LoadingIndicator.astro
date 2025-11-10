@@ -1,0 +1,32 @@
+---
+interface Props {
+  hidden?: boolean;
+}
+const { hidden = false } = Astro.props;
+---
+
+<div
+  id="loading-indicator"
+  class={`flex flex-col items-center justify-center gap-4 py-8 ${hidden ? "hidden" : ""}`}
+>
+  <div class="flex space-x-2">
+    <div
+      class="bg-primary h-3 w-3 animate-bounce rounded-full"
+      style="animation-delay: 0ms;"
+    >
+    </div>
+    <div
+      class="bg-primary h-3 w-3 animate-bounce rounded-full"
+      style="animation-delay: 150ms;"
+    >
+    </div>
+    <div
+      class="bg-primary h-3 w-3 animate-bounce rounded-full"
+      style="animation-delay: 300ms;"
+    >
+    </div>
+  </div>
+  <p class="text-theme-secondary m-0 text-sm">
+    더 많은 포스트를 불러오는 중...
+  </p>
+</div>

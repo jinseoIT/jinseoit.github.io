@@ -1,0 +1,241 @@
+---
+// 현재 테마 상태를 서버에서 확인 (기본값은 light)
+const currentTheme = "dark";
+---
+
+<button
+  id="theme-toggle"
+  class="text-theme-primary hover:bg-theme-hover focus:ring-primary transition-theme group relative flex items-center justify-center overflow-hidden rounded-lg border-0 p-2 duration-200 hover:scale-105 focus:outline-none focus:ring-0"
+  aria-label="테마 변경"
+  title="라이트/다크 테마 전환"
+>
+  <!-- 아이콘 컨테이너 -->
+  <div class="relative h-5 w-5">
+    <!-- 라이트 모드 아이콘 -->
+    <svg
+      class="theme-icon light-icon absolute inset-0 h-5 w-5 transition-all duration-300 ease-in-out"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+
+    <!-- 다크 모드 아이콘 -->
+    <svg
+      class="theme-icon dark-icon absolute inset-0 h-5 w-5 transition-all duration-300 ease-in-out"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+    </svg>
+  </div>
+</button>
+
+<script>
+  class ThemeManager {
+    private currentTheme: string;
+    private toggleButton: HTMLElement | null = null;
+    private isInitialized: boolean = false;
+
+    constructor() {
+      // 이미 설정된 테마가 있는지 확인
+      const existingTheme = document.documentElement.getAttribute("data-theme");
+      if (existingTheme) {
+        this.currentTheme = existingTheme;
+      } else {
+        this.currentTheme = this.getStoredTheme() || this.getSystemTheme();
+        // 즉시 적용
+        this.applyTheme(this.currentTheme);
+      }
+      this.init();
+    }
+
+    private getStoredTheme(): string | null {
+      if (typeof window === "undefined") return null;
+      try {
+        return localStorage.getItem("theme");
+      } catch (e) {
+        return null;
+      }
+    }
+
+    private getSystemTheme(): string {
+      if (typeof window === "undefined") return "light";
+      return window.matchMedia("(prefers-color-scheme: dark)").matches
+        ? "dark"
+        : "light";
+    }
+
+    private setStoredTheme(theme: string): void {
+      if (typeof window === "undefined") return;
+      try {
+        localStorage.setItem("theme", theme);
+      } catch (e) {
+        console.warn("localStorage 접근 실패:", e);
+      }
+    }
+
+    private applyTheme(theme: string): void {
+      document.documentElement.setAttribute("data-theme", theme);
+      this.currentTheme = theme;
+      this.updateToggleButton();
+    }
+
+    private updateToggleButton(): void {
+      if (!this.toggleButton) return;
+
+      const isDark = this.currentTheme === "dark";
+      this.toggleButton.setAttribute(
+        "aria-label",
+        isDark ? "라이트 모드로 변경" : "다크 모드로 변경",
+      );
+      this.toggleButton.setAttribute(
+        "title",
+        isDark ? "라이트 모드로 변경" : "다크 모드로 변경",
+      );
+    }
+
+    private handleToggle = (): void => {
+      const newTheme = this.currentTheme === "light" ? "dark" : "light";
+
+      // 슬라이드 애니메이션 효과
+      if (this.toggleButton) {
+        // 버튼 클릭 효과
+        this.toggleButton.style.transform = "scale(0.95)";
+
+        setTimeout(() => {
+          this.applyTheme(newTheme);
+          this.setStoredTheme(newTheme);
+          this.toggleButton!.style.transform = "scale(1)";
+        }, 150);
+      } else {
+        this.applyTheme(newTheme);
+        this.setStoredTheme(newTheme);
+      }
+    };
+
+    private handleSystemThemeChange = (e: MediaQueryListEvent): void => {
+      // 사용자가 직접 테마를 설정한 경우가 아니라면 시스템 테마 따라가기
+      if (!this.getStoredTheme()) {
+        const newTheme = e.matches ? "dark" : "light";
+        this.applyTheme(newTheme);
+      }
+    };
+
+    public init(): void {
+      if (this.isInitialized) return;
+
+      this.toggleButton = document.getElementById("theme-toggle");
+      if (this.toggleButton) {
+        this.toggleButton.addEventListener("click", this.handleToggle);
+      }
+
+      if (typeof window !== "undefined") {
+        const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+        mediaQuery.addEventListener("change", this.handleSystemThemeChange);
+      }
+
+      this.isInitialized = true;
+    }
+  }
+
+  // DOM이 준비되면 테마 매니저 초기화
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", () => {
+      new ThemeManager();
+    });
+  } else {
+    new ThemeManager();
+  }
+</script>
+
+<style>
+  /* 아이콘 컨테이너 */
+  #theme-toggle {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    border: none !important;
+    outline: none !important;
+  }
+
+  #theme-toggle:focus {
+    outline: none !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+
+  #theme-toggle:active {
+    transform: scale(0.95);
+  }
+
+  /* 테마 아이콘 기본 상태 */
+  .theme-icon {
+    opacity: 0;
+    transform: translateX(-100%);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* 라이트 테마일 때 라이트 아이콘 표시 */
+  html[data-theme="light"] .light-icon {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  /* 다크 테마일 때 다크 아이콘 표시 */
+  html[data-theme="dark"] .dark-icon {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  /* 기본값 (테마가 설정되지 않은 경우) */
+  html:not([data-theme]) .light-icon {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  /* 테마 전환 시 슬라이드 애니메이션 */
+  html[data-theme="light"] .dark-icon {
+    opacity: 0;
+    transform: translateX(-100%);
+  }
+
+  html[data-theme="dark"] .light-icon {
+    opacity: 0;
+    transform: translateX(-100%);
+  }
+
+  /* 호버 효과 */
+  #theme-toggle:hover .theme-icon {
+    transform: translateX(0) scale(1.05);
+  }
+
+  /* 세로 정렬 개선 */
+  #theme-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 40px;
+    min-width: 40px;
+  }
+
+  .theme-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+</style>
