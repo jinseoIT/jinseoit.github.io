@@ -3,7 +3,7 @@ title: Javascript 동작원리와 Eventloop
 description: Javascript 동작원리와 Eventloop
 author: "jinseoit"
 image: "https://velog.velcdn.com/images/radin/post/2b52d838-592a-4dda-a0f5-0623fbc28a3b/image.gif"
-published: 2023-07-15
+published: 2023-10-10
 tags: [JavaScript]
 ---
 

@@ -3,7 +3,7 @@ title: Javascript의 데이터와 깊은복사 얕은복사
 description: Javascript의 데이터와 깊은복사 얕은복사
 author: "jinseoit"
 image: "https://velog.velcdn.com/images/radin/post/374e397b-f9a2-4d04-a996-e41a1c9c99c7/image.png"
-published: 2023-07-25
+published: 2023-10-03
 tags: [JavaScript]
 ---
 

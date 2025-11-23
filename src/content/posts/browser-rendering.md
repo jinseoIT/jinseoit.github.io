@@ -3,7 +3,7 @@ title: 브라우저 렌더링 과정
 description: 브라우저 렌더링 과정
 author: "jinseoit"
 image: "https://velog.velcdn.com/images/radin/post/c7c2c66d-8d54-4aef-9471-8725813ca50c/image.png"
-published: 2023-09-30
+published: 2023-10-12
 tags: [browser]
 ---
 
