@@ -29,6 +29,7 @@ author: "Temp"
 image: "/blog-placeholder-1.jpg"
 published: ${today}
 tags: []
+draft: false
 ---
 
 여기에 본문을 작성하세요.

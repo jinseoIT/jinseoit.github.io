@@ -97,7 +97,7 @@
 
 /* 기본 스타일 */
 body {
-  @apply font-pretendard bg-theme-bg text-theme-primary m-0 overflow-x-hidden p-0 text-left text-base leading-7;
+  @apply m-0 overflow-x-hidden bg-theme-bg p-0 text-left font-pretendard text-base leading-7 text-theme-primary;
   background-size: 100% 600px;
   word-wrap: break-word;
   overflow-wrap: break-word;

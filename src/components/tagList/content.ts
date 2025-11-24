@@ -74,7 +74,7 @@ export async function GetTags() {
  * Post published 우선순위 배열
  */
 export async function GetSortedPosts() {
-  const allBlogPosts = await getCollection("posts");
+  const allBlogPosts = await getCollection("posts", ({ data }) => data.draft);
   const sorted = allBlogPosts.sort(
     (a, b) => b.data.published.valueOf() - a.data.published.valueOf(),
   );
