@@ -20,12 +20,6 @@ allPosts.forEach((post) => {
     tagCounts.set(tag, (tagCounts.get(tag) || 0) + 1);
   });
 });
-
-// 포스트별 태그 정보만 추출 (최소한의 데이터)
-const postsTags = allPosts.map((post) => ({
-  id: post.id,
-  tags: post.data.tags || [],
-}));
 ---
 
 <ul
@@ -61,18 +55,8 @@ const postsTags = allPosts.map((post) => ({
     cleanup,
   } from "./tagListLogic.js";
 
-  // 초기화
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", () => {
-      const postsContainer = document.querySelector("#posts-container");
-      const initialTag = postsContainer?.getAttribute("data-initial-tag") || "";
-
-      initializeState(initialTag);
-      setupEventListeners();
-      setupIntersectionObserver();
-      setupImageLoading();
-    });
-  } else {
+  // 초기화 함수
+  function initialize() {
     const postsContainer = document.querySelector("#posts-container");
     const initialTag = postsContainer?.getAttribute("data-initial-tag") || "";
 
@@ -82,16 +66,22 @@ const postsTags = allPosts.map((post) => ({
     setupImageLoading();
   }
 
-  // 메모리 정리 (페이지 언로드 시)
+  // DOM 준비 시 초기화
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initialize);
+  } else {
+    initialize();
+  }
+
+  // 메모리 정리
   window.addEventListener("beforeunload", cleanup);
 </script>
 
 <style>
-  /* View Transitions API 스타일 - Tailwind로 대체 불가능 */
+  /* View Transitions API 스타일 */
   .post-item {
     view-transition-name: post-item;
     animation: slide-up 0.3s ease-out;
-    will-change: opacity, transform;
   }
 
   .post-item.hidden {
@@ -109,30 +99,11 @@ const postsTags = allPosts.map((post) => ({
     }
   }
 
-  /* line-clamp 유틸리티 - Tailwind로 대체 불가능 */
+  /* line-clamp 유틸리티 */
   .line-clamp-2 {
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
-  }
-  .line-clamp-3 {
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-
-  /* 캐시된 이미지가 있을 때 스켈레톤 즉시 숨김 */
-  .post-item img[style*="opacity: 1"] ~ .image-skeleton,
-  .post-item img.loaded ~ .image-skeleton,
-  .post-item img[style*="opacity: 1"] + .image-skeleton,
-  .post-item img.loaded + .image-skeleton {
-    display: none !important;
-  }
-
-  /* 브라우저 캐시된 이미지의 경우 스켈레톤 숨김 */
-  .post-item img[complete="true"] ~ .image-skeleton {
-    display: none !important;
   }
 </style>

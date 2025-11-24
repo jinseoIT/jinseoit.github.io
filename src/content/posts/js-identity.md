@@ -1,7 +1,7 @@
 ---
 title: "JavaScript에서 동일성과 동등성"
-description: "Temp"
-author: "Temp"
+description: "JavaScript에서 동일성과 동등성"
+author: "jinseoit"
 image: "/blog-placeholder-1.jpg"
 published: 2025-11-24T02:52:50.953Z
 tags: []
@@ -21,12 +21,14 @@ draft: true
 자바 진영에서는 오래전부터 객체 비교를 두 축으로 구분해왔습니다.
 
 **동일성 (Identity)**
+
 > "완전히 같은 개체냐?"
 
 - 메모리 상에서 **같은 인스턴스(같은 참조)** 를 가리키는지 확인
 - 자바: `==` 연산자 (참조 타입 기준)
 
 **동등성 (Equality)**
+
 > "도메인 관점에서 같은 것으로 취급해도 되냐?"
 
 - 물리적으로는 다른 객체지만, 비즈니스 규칙상 같은 엔티티
@@ -42,10 +44,12 @@ draft: true
 ```
 
 **분석**
+
 - 차종, 옵션, 색상, 연식이 모두 동일
 - 하지만 **차대번호(VIN)** 는 다름
 
 **결론**
+
 - ❌ **동일하지 않음**: 서로 다른 차대번호를 가진 별개의 차량
 - ✅ **동등할 수 있음**: "2025년식 흰색 Model X 롱레인지"라는 도메인 관점에서는 같은 사양
 
@@ -105,11 +109,11 @@ isSameUser(user1, user2); // true
 
 JavaScript에는 세 가지 비교 방식이 있습니다.
 
-| 연산자        | 타입 변환 | 특징                   |
-| ------------- | --------- | ---------------------- |
-| `==`          | O         | 느슨한 동등성          |
-| `===`         | X         | 엄격한 동등성          |
-| `Object.is()` | X         | SameValue 기반 비교    |
+| 연산자        | 타입 변환 | 특징                |
+| ------------- | --------- | ------------------- |
+| `==`          | O         | 느슨한 동등성       |
+| `===`         | X         | 엄격한 동등성       |
+| `Object.is()` | X         | SameValue 기반 비교 |
 
 ---
 
@@ -118,15 +122,16 @@ JavaScript에는 세 가지 비교 방식이 있습니다.
 타입이 다르면 **강제 형변환** 후 비교합니다.
 
 ```javascript
-"1" == 1;           // true - 문자열 → 숫자
-0 == false;         // true - false → 0
-0 == "";            // true - "" → 0
-null == undefined;  // true - 특별 취급
-[] == "";           // true - [] → ""
-[] == 0;            // true - [] → "" → 0
+"1" == 1; // true - 문자열 → 숫자
+0 == false; // true - false → 0
+0 == ""; // true - "" → 0
+null == undefined; // true - 특별 취급
+[] == ""; // true - [] → ""
+[] == 0; // true - [] → "" → 0
 ```
 
 **권장사항**
+
 - 팀 규칙으로 `==` 사용 **금지**
 - 예외: `value == null` (null + undefined 동시 체크)
 - ESLint: `eqeqeq: "error"` 설정
@@ -138,6 +143,7 @@ null == undefined;  // true - 특별 취급
 타입 변환 없이 비교합니다.
 
 **비교 규칙**
+
 - 타입이 다르면 → `false`
 - 타입이 같으면 → 타입별 규칙 적용
   - 숫자: 같은 값이면 `true`, `+0 === -0` → `true`, `NaN === NaN` → `false`
@@ -146,6 +152,7 @@ null == undefined;  // true - 특별 취급
   - 객체: 같은 참조일 때만 `true`
 
 **권장사항**
+
 - 기본값으로 무조건 `===` / `!==` 사용
 - 단, NaN만 예외 처리 필요
 
@@ -157,17 +164,17 @@ null == undefined;  // true - 특별 취급
 
 ```javascript
 // 일반적인 경우 (=== 와 동일)
-Object.is(1, 1);        // true
-Object.is("a", "a");    // true
-Object.is({}, {});      // false (참조 다름)
+Object.is(1, 1); // true
+Object.is("a", "a"); // true
+Object.is({}, {}); // false (참조 다름)
 
 // 1) NaN 처리
-NaN === NaN;            // false ❌
-Object.is(NaN, NaN);    // true ✅
+NaN === NaN; // false ❌
+Object.is(NaN, NaN); // true ✅
 
 // 2) +0 / -0 구분
-0 === -0;               // true
-Object.is(0, -0);       // false ✅
+0 === -0; // true
+Object.is(0, -0); // false ✅
 ```
 
 ---
@@ -194,12 +201,14 @@ NaN === NaN; // false (여전히 false)
 ### 언제 무엇을 사용할까?
 
 **일반 비즈니스 로직**
+
 ```javascript
 // ✅ 항상 === / !== 사용
 if (user.status === 'active') { ... }
 ```
 
 **도메인 동등성**
+
 ```javascript
 // ✅ 헬퍼 함수로 캡슐화
 const equalsUser = (a, b) => a?.id === b?.id;
@@ -207,6 +216,7 @@ if (equalsUser(prevUser, nextUser)) { ... }
 ```
 
 **Object.is 사용 케이스**
+
 - 라이브러리/프레임워크 레벨의 얕은 비교
 - React의 상태 비교 (NaN/-0 정확히 처리)
 - 과학/금융 도메인에서 0과 -0 구분이 필요한 경우
@@ -218,8 +228,8 @@ if (equalsUser(prevUser, nextUser)) { ... }
 ### 왜 NaN은 자기 자신과 같지 않은가?
 
 ```javascript
-NaN === NaN;  // false
-NaN == NaN;   // false
+NaN === NaN; // false
+NaN == NaN; // false
 ```
 
 이것은 버그가 아니라 **IEEE 754 부동소수점 표준**의 의도된 설계입니다.
@@ -231,16 +241,18 @@ NaN == NaN;   // false
 > "NaN은 어떤 값과도 같지 않은 값이어야 한다"
 
 **NaN의 의미**
+
 - "숫자가 아닌 결과(Not-a-Number)"를 나타내는 에러 플래그
 - 발생 상황: 0으로 나누기, 불가능한 루트, 파싱 실패 등
 
 **비교 동작**
+
 ```javascript
-NaN === NaN;  // false
-3 < NaN;      // false
-3 > NaN;      // false
-NaN > 3;      // false
-NaN < 3;      // false
+NaN === NaN; // false
+3 < NaN; // false
+3 > NaN; // false
+NaN > 3; // false
+NaN < 3; // false
 ```
 
 NaN은 **정렬 불가능한 값**으로 취급되어, 모든 비교에서 `false`를 반환합니다.
@@ -250,11 +262,13 @@ NaN은 **정렬 불가능한 값**으로 취급되어, 모든 비교에서 `fals
 ### 의도적으로 불편하게 만든 이유
 
 **설계 철학**
+
 1. 숫자 흐름에 NaN이 끼어들면 **조용히 묻히지 않고 계속 티가 나야 함**
 2. 이후 연산도 모두 NaN으로 오염
 3. `===` 비교에 걸리지 않게 해서 별도 검사 로직을 강제
 
 **올바른 사용법**
+
 ```javascript
 // ❌ 금지
 value === NaN;
@@ -278,6 +292,7 @@ Object.is(NaN, NaN); // true
 언어 설계상 "NaN을 같은 값으로 취급해야 할 때 쓸 수 있는 도구"를 따로 제공한 것입니다.
 
 **철학**
+
 - `===` / `==` : NaN을 "항상 다른 값"으로 취급 → 버그 드러내기
 - `Object.is` : NaN을 "같은 NaN"으로 인식 → 정확한 비교 필요 시
 - Set/Map : NaN을 같은 값으로 취급 → 중복 제거

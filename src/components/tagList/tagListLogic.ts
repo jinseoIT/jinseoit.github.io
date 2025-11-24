@@ -13,112 +13,33 @@ let currentVisibleCount = UI_CONSTANTS.POSTS_PER_LOAD;
 let filteredPosts: PostData[] = [];
 let isInitialized = false;
 let isLoading = false;
-let scrollTimeout: number | null = null;
 
 // 태그별 스크롤 상태 관리
 const tagScrollStates = new Map<string, number>();
 let currentTag = DEFAULT_TAG;
 
-// 이미지 로딩 설정 (중복 호출 방지)
-let isSettingUpImages = false;
-
-// 전역 이미지 로딩 상태 관리
-if (!window.imageLoadStates) {
-  window.imageLoadStates = new Map();
-}
-
+// 이미지 로딩은 브라우저 네이티브 lazy loading에 위임
 export function setupImageLoading() {
-  if (isSettingUpImages) {
-    return;
-  }
-
-  isSettingUpImages = true;
-
+  // 이미 로딩된 이미지를 즉시 표시하기 위한 간단한 처리
   const images = document.querySelectorAll(
     CSS_CLASSES.POST_ITEM + " img",
   ) as NodeListOf<HTMLImageElement>;
 
-  images.forEach((img, index) => {
-    const skeleton = img.previousElementSibling as HTMLElement;
-    const imageUrl = img.src;
-
-    // 이미 캐시된 상태가 있으면 즉시 적용 (깜빡임 방지)
-    if (window.imageLoadStates.has(imageUrl)) {
-      const isLoaded = window.imageLoadStates.get(imageUrl);
-      if (isLoaded) {
-        img.classList.add(CSS_CLASSES.LOADED);
-        img.style.opacity = "1"; // 즉시 표시
-        if (skeleton) {
-          skeleton.style.display = "none";
-        }
-      } else {
-        img.style.display = "none";
-        if (skeleton) {
-          skeleton.style.setProperty("display", "block", "important");
-          skeleton.style.setProperty("visibility", "visible", "important");
-          skeleton.style.background =
-            "linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%)";
-        }
-      }
-      return; // 이미 처리된 이미지는 더 이상 처리하지 않음
+  images.forEach((img) => {
+    // 이미 로딩 완료된 이미지는 즉시 표시
+    if (img.complete && img.naturalWidth > 0) {
+      img.style.opacity = "1";
+    } else {
+      // 로딩 완료 시 표시
+      img.addEventListener(
+        EVENT_TYPES.LOAD,
+        function () {
+          this.style.opacity = "1";
+        },
+        { once: true },
+      );
     }
-
-    // 이미 로딩이 완료된 이미지인지 확인 (브라우저 캐시)
-    if (img.complete && img.naturalWidth > 0 && img.naturalHeight > 0) {
-      img.classList.add(CSS_CLASSES.LOADED);
-      img.style.opacity = "1"; // 즉시 표시
-      window.imageLoadStates.set(imageUrl, true);
-      if (skeleton) {
-        skeleton.style.display = "none";
-      }
-      return;
-    }
-
-    // 이미 로딩이 실패한 이미지인지 확인
-    if (img.complete && img.naturalWidth === 0) {
-      window.imageLoadStates.set(imageUrl, false);
-      img.style.display = "none";
-      if (skeleton) {
-        skeleton.style.setProperty("display", "block", "important");
-        skeleton.style.setProperty("visibility", "visible", "important");
-        skeleton.style.background =
-          "linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%)";
-      }
-      return;
-    }
-
-    // 이미지 로드 완료 시
-    img.addEventListener(
-      EVENT_TYPES.LOAD,
-      function () {
-        this.classList.add(CSS_CLASSES.LOADED);
-        this.style.opacity = "1"; // 즉시 표시
-        window.imageLoadStates.set(imageUrl, true);
-        if (skeleton) {
-          skeleton.style.display = "none";
-        }
-      },
-      { once: true },
-    );
-
-    // 이미지 로드 실패 시
-    img.addEventListener(
-      EVENT_TYPES.ERROR,
-      function () {
-        window.imageLoadStates.set(imageUrl, false);
-        this.style.display = "none";
-        if (skeleton) {
-          skeleton.style.display = "block";
-          skeleton.style.background =
-            "linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%)";
-        }
-      },
-      { once: true },
-    );
   });
-
-  // 플래그 리셋
-  isSettingUpImages = false;
 }
 
 // Intersection Observer 설정
@@ -187,11 +108,9 @@ export function displayPosts() {
     }
   }
 
-  // 새로 표시된 포스트의 이미지 상태 확인 (성능 최적화)
+  // 새로 표시된 포스트의 이미지 로딩 처리
   if (postsToShow.length > 0) {
-    requestIdleCallback(() => {
-      setupImageLoading();
-    });
+    setupImageLoading();
   }
 }
 
@@ -359,9 +278,6 @@ export function setupEventListeners() {
 
 // 메모리 정리 (페이지 언로드 시)
 export function cleanup() {
-  if (scrollTimeout) {
-    clearTimeout(scrollTimeout);
-  }
   if (observer) {
     observer.disconnect();
   }
