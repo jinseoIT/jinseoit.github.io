@@ -1,10 +1,10 @@
 ---
 title: "JavaScript에서 동일성과 동등성"
-description: "JavaScript에서 동일성과 동등성"
+description: "객체 비교의 두 가지 관점인 동일성과 동등성 개념을 이해하고, JavaScript의 ==, ===, Object.is의 차이점과 NaN의 특수한 동작 원리를 알아봅니다."
 author: "jinseoit"
-image: "/blog-placeholder-1.jpg"
+image: "/images/js-identity.webp"
 published: 2025-11-24T02:52:50.953Z
-tags: []
+tags: ["JavaScript"]
 draft: true
 ---
 
