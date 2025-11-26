@@ -44,9 +44,10 @@
 
   /* OKLCH Color System */
   --hue: 160;
-  --primary-color: #66cdaa; /* 민트 그린 톤 */
-  --primary-color-lighten: #e8f5f0;
-  --primary-color-hover: #b8e6d3;
+  /* 민트 그린 톤 */
+  --primary-color: #1e40af; /* 진한 블루 */
+  --primary-color-lighten: #dbeafe;
+  --primary-color-hover: #3b82f6;
   --primary-color-transparent: rgba(102, 205, 170, 0.15);
   --text-color: oklch(30% 0 0);
   --card-color: oklch(100% 0 0);
@@ -56,6 +57,9 @@
 
 /* 다크 테마에서 기존 색상 조정 */
 [data-theme="dark"] {
+  --primary-color: #66cdaa;
+  --primary-color-lighten: #e8f5f0;
+  --primary-color-hover: #b8e6d3;
   --black: #f8fafc;
   --black_48: #f8fafc7a;
   --text-color: oklch(90% 0 0);

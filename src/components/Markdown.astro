@@ -3,12 +3,22 @@ import "../styles/markdown.css";
 
 export interface Props {
   class?: string;
+  title?: string;
+  image?: string;
 }
 
-const { class: className } = Astro.props;
+const { class: className, title, image } = Astro.props;
 ---
 
-<div class="markdown-wrapper ${className ?? ''}">
+<div class={`markdown-wrapper ${className ?? ""}`}>
+  {
+    image && (
+      <div class="post-thumbnail">
+        <img src={image} alt={title || "Post thumbnail"} />
+      </div>
+    )
+  }
+  {title && <h1 class="post-title">{title}</h1>}
   <slot />
 </div>
 
@@ -70,6 +80,38 @@ const { class: className } = Astro.props;
     max-width: 100%;
     padding: 0 24px;
     flex-shrink: 1;
+  }
+
+  .post-thumbnail {
+    width: 100%;
+    margin-bottom: 2rem;
+    border-radius: 0.75rem;
+    overflow: hidden;
+  }
+
+  .post-thumbnail img {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: cover;
+  }
+
+  .post-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 2rem;
+    color: oklch(0.2 0.01 var(--hue));
+  }
+
+  :global([data-theme="dark"]) .post-title {
+    color: oklch(0.95 0.01 var(--hue));
+  }
+
+  @media (max-width: 768px) {
+    .post-title {
+      font-size: 2rem;
+    }
   }
 
   .code-block {

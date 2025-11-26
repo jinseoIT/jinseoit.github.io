@@ -8,8 +8,6 @@ tags: ["JavaScript"]
 draft: true
 ---
 
-# JavaScript에서 동일성(Identity)과 동등성(Equality)
-
 객체 비교의 두 가지 관점인 **동일성**과 **동등성** 개념을 이해하고, JavaScript의 `==`, `===`, `Object.is`의 차이점과 NaN의 특수한 동작 원리를 알아봅니다.
 
 ---
