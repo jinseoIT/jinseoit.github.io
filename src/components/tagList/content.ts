@@ -27,7 +27,7 @@ const PRIORITY_MAP = new Map(TAG_PRIORITY.map((tag, index) => [tag, index]));
 
 export async function GetTags() {
   const allBlogPosts = await getCollection("posts", ({ data }) => {
-    return import.meta.env.PROD ? data.draft !== true : true;
+    return data.draft;
   });
 
   // 태그별 포스트 개수만 계산 (전체 포스트 정보는 불필요)
