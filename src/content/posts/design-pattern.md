@@ -2,7 +2,7 @@
 title: 일상에서 알아보는 디자인 패턴
 description: 일상 비유와 실제 코드로 배우는 주요 디자인 패턴 7가지
 author: "jinseoit"
-image: "https://velog.velcdn.com/images/radin/post/71b57953-b867-4e9e-b92f-65653d86f851/image.jpg"
+image: "/images/design-pattern.webp"
 published: 2025-11-27
 tags: [DesignPattern]
 draft: false
