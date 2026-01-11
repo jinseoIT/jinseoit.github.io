@@ -1,0 +1,218 @@
+---
+
+---
+
+<nav class="toc-container">
+  <ul class="toc-list" id="toc-list"></ul>
+</nav>
+
+<script>
+  function initTableOfContents() {
+    const article = document.querySelector(".markdown-wrapper");
+    const tocList = document.getElementById("toc-list");
+
+    if (!article || !tocList) return;
+
+    // 마크다운 콘텐츠에서 h2, h3 헤딩 추출
+    const headings = article.querySelectorAll("h2, h3, h4");
+
+    if (headings.length === 0) {
+      // 헤딩이 없으면 목차 숨기기
+      const tocContainer = document.querySelector(
+        ".toc-container",
+      ) as HTMLElement;
+      if (tocContainer) {
+        tocContainer.style.display = "none";
+      }
+      return;
+    }
+
+    // 각 헤딩에 ID 추가 및 목차 생성
+    headings.forEach((heading, index) => {
+      const id = `heading-${index}`;
+      heading.id = id;
+
+      const li = document.createElement("li");
+      li.className = `toc-item toc-${heading.tagName.toLowerCase()}`;
+
+      const a = document.createElement("a");
+      a.href = `#${id}`;
+      a.textContent = heading.textContent || "";
+      a.className = "toc-link";
+
+      li.appendChild(a);
+      tocList.appendChild(li);
+    });
+
+    // 스크롤 이벤트 리스너
+    let isScrolling = false;
+
+    function updateActiveHeading() {
+      if (isScrolling) return;
+
+      const headingElements = Array.from(headings);
+      const tocLinks = document.querySelectorAll(".toc-link");
+
+      // 현재 스크롤 위치에서 가장 가까운 헤딩 찾기
+      let activeIndex = 0;
+      const scrollPosition = window.scrollY + 100;
+
+      for (let i = headingElements.length - 1; i >= 0; i--) {
+        const heading = headingElements[i] as HTMLElement;
+        if (heading.offsetTop <= scrollPosition) {
+          activeIndex = i;
+          break;
+        }
+      }
+
+      // 모든 링크의 활성 상태 제거 후 현재 링크 활성화
+      tocLinks.forEach((link, index) => {
+        if (index === activeIndex) {
+          link.classList.add("active");
+        } else {
+          link.classList.remove("active");
+        }
+      });
+    }
+
+    // 목차 클릭 시 부드러운 스크롤
+    tocList.addEventListener("click", (e) => {
+      const target = e.target as HTMLElement;
+      if (target.tagName === "A") {
+        e.preventDefault();
+        const id = target.getAttribute("href")?.substring(1);
+        const heading = id ? document.getElementById(id) : null;
+
+        if (heading) {
+          isScrolling = true;
+          heading.scrollIntoView({ behavior: "smooth", block: "start" });
+
+          // 스크롤 완료 후 플래그 해제
+          setTimeout(() => {
+            isScrolling = false;
+            updateActiveHeading();
+          }, 1000);
+        }
+      }
+    });
+
+    // 스크롤 이벤트
+    let scrollTimeout: NodeJS.Timeout;
+    window.addEventListener("scroll", () => {
+      clearTimeout(scrollTimeout);
+      scrollTimeout = setTimeout(updateActiveHeading, 50);
+    });
+
+    // 초기 활성 상태 설정
+    updateActiveHeading();
+  }
+
+  // DOM 로드 완료 후 실행
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initTableOfContents);
+  } else {
+    initTableOfContents();
+  }
+
+  // 페이지 전환 시 재초기화 (Astro의 View Transitions 지원)
+  document.addEventListener("astro:page-load", initTableOfContents);
+</script>
+
+<style is:global>
+  .toc-container {
+    position: fixed;
+    top: 120px;
+    left: calc(50% + 400px + 2rem);
+    width: 280px;
+    max-height: calc(100vh - 150px);
+    overflow-y: auto;
+    padding: 0 1rem;
+    border-left: 2px solid oklch(0.9 0.01 var(--hue));
+  }
+
+  [data-theme="dark"] .toc-container {
+    border-left-color: oklch(0.3 0.01 var(--hue));
+  }
+
+  .toc-title {
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: oklch(0.3 0.01 var(--hue));
+  }
+
+  [data-theme="dark"] .toc-title {
+    color: oklch(0.8 0.01 var(--hue));
+  }
+
+  .toc-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .toc-item {
+    margin: 0.5rem 0;
+  }
+
+  .toc-h3 {
+    padding-left: 1rem;
+  }
+
+  .toc-h4 {
+    padding-left: 2rem;
+  }
+
+  .toc-container .toc-link {
+    color: #8e8e8e;
+    text-decoration: none;
+    font-size: 0.825rem;
+    line-height: 1.5;
+    display: block;
+    transition: color 0.2s ease;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .toc-container .toc-link:hover {
+    color: oklch(0.5 0.01 var(--hue));
+  }
+
+  [data-theme="dark"] .toc-container .toc-link:hover {
+    color: oklch(0.7 0.01 var(--hue));
+  }
+
+  .toc-container .toc-link.active {
+    color: #333;
+  }
+
+  [data-theme="dark"] .toc-container .toc-link.active {
+    color: #fff;
+  }
+
+  /* 스크롤바 스타일링 */
+  .toc-container::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  .toc-container::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .toc-container::-webkit-scrollbar-thumb {
+    background: oklch(0.8 0.01 var(--hue));
+    border-radius: 2px;
+  }
+
+  [data-theme="dark"] .toc-container::-webkit-scrollbar-thumb {
+    background: oklch(0.4 0.01 var(--hue));
+  }
+
+  /* 반응형: 작은 화면에서는 숨김 */
+  @media (max-width: 1200px) {
+    .toc-container {
+      display: none;
+    }
+  }
+</style>
