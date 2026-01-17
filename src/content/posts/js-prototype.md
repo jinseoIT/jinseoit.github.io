@@ -3,8 +3,9 @@ title: JavaScript - 프로토타입(Prototype)
 description: JavaScript - 프로토타입(Prototype)
 author: "jinseoit"
 image: "https://velog.velcdn.com/images/radin/post/2d2194b0-f842-4131-8fdc-f61a2083a64f/image.png"
-published: 2023-09-17
+published: 2026-01-17
 tags: [JavaScript]
+draft: true
 ---
 
 ## 들어가기
@@ -233,9 +234,11 @@ const person2 = new Person2("minsu", 20);
 > 참고 도서
 > [모던 자바스크립트 Deep Dive](https://www.aladin.co.kr/shop/wproduct.aspx?ItemId=251552545&start=slayer)
 > [코어 자바스크립트](https://www.aladin.co.kr/shop/wproduct.aspx?ItemId=206513031)
+
 > 참고 영상
 > [10분 테크톡 - 크리스의 Prototype](https://www.youtube.com/watch?v=RYxgNZW3wl0)
 > [10분 테크톡 - 아놀드의 프로토타입 뽀개기](https://www.youtube.com/watch?v=TqFwNFTa3c4)
+
 > 참고 자료
 > [Object prototypes - mdn](https://developer.mozilla.org/ko/docs/Learn/JavaScript/Objects/Object_prototypes)
 > [자바스크립트는 왜 프로토타입을 선택했을까 - 임성묵](https://medium.com/@limsungmook/%EC%9E%90%EB%B0%94%EC%8A%A4%ED%81%AC%EB%A6%BD%ED%8A%B8%EB%8A%94-%EC%99%9C-%ED%94%84%EB%A1%9C%ED%86%A0%ED%83%80%EC%9E%85%EC%9D%84-%EC%84%A0%ED%83%9D%ED%96%88%EC%9D%84%EA%B9%8C-997f985adb42)
