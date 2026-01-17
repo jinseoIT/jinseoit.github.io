@@ -1,78 +1,76 @@
 ---
-title: JavaScript - 프로토타입(Prototype)
-description: JavaScript - 프로토타입(Prototype)
+title: JavaScript 프로토타입 완벽 이해하기
+description: 자바스크립트 프로토타입의 동작 원리와 실무에서 알아야 할 핵심 개념
 author: "jinseoit"
-image: "https://velog.velcdn.com/images/radin/post/2d2194b0-f842-4131-8fdc-f61a2083a64f/image.png"
+image: "https://images.velog.io/post-images/adam2/12a5e250-fd90-11e9-959f-1f9679bea880/1nDBFaMpflmSsIKfMLxWIvQ.jpeg"
 published: 2026-01-17
 tags: [JavaScript]
 draft: true
 ---
 
-## 들어가기
+## 들어가며
 
-> JavaScript는 흔히 프로토타입 기반 언어(prototype-based language)라 불립니다. (프로토타입 기반 객체지향 언어 라고도 말할 수 있습니다.)
-> 자바스크립트는 객체지향 프로그래밍을 프로토타입으로 어떻게 접목 시켰는지 이해해야 자바스크립트 동작 원리를 보다 정확히 이해하였다고 말할 수 있습니다.
+자바스크립트를 다루다 보면 프로토타입이라는 개념을 피할 수 없다. 클래스 문법이 도입된 ES6 이후에도 내부적으로는 여전히 프로토타입 기반으로 동작하기 때문에, 이 개념을 제대로 이해하지 못하면 예상치 못한 버그를 만나거나 라이브러리 코드를 읽을 때 막히게 된다.
 
-## 🐬 0 . 객체와 객체지향 프로그래밍
+이 글에서는 프로토타입의 핵심 개념을 정리하고, 실무에서 자주 마주치는 상황들을 함께 살펴본다.
 
-먼저 프로토타입을 알아보기 전 `객체`가 무엇인지 그리고 `객체지향 프로그래밍`의 정의가 무엇이지 알아보자.
+## 객체와 객체지향 프로그래밍
 
-> **객체** 란 `상태`를 나타내는 `property`와 `동작`을 나타내는 `method` 를 하나의 논리적인 단위로 구성한 `복합적인 자료구조`이다.
-> **객체지향 프로그래밍** 이란 독립적인 `객체의 집합`으로 프로그램을 표현하려는 프로그래밍 패러다임이다.
+프로토타입을 이해하려면 먼저 자바스크립트에서 말하는 객체가 무엇인지 명확히 해야 한다.
 
-## 🐬 1. 프로토타입 정의
+**객체**는 상태(property)와 동작(method)을 하나의 단위로 묶은 자료구조다. **객체지향 프로그래밍**은 이런 객체들의 협력으로 프로그램을 구성하는 패러다임이다.
 
-프로토타입의 정의는 많은 이들에게 혼란을 준다. MDN 혹은 각 책마다의 정의가 비슷하면서도 애매하게 살짝 달랐다. 그 이유는 용어가 이중적으로 사용되고 있기 때문이다.
+## 프로토타입이란?
 
-> 1. 프로토타입은 개발 사이클의 **초기 단계에서 제품** 혹은 **어플리케이션의 외형이나 동작을 보여줄 수 있는 모델**을 의미합니다. - MDN
+프로토타입 개념이 혼란스러운 이유는 하나의 용어가 여러 맥락에서 사용되기 때문이다. 자바스크립트에서 프로토타입은 크게 두 가지를 의미한다.
 
-> 2. 자바스크립트는 프로토타입 기반 언어이다. 클래스 기반 언어에서는 '상속'을 사용하지만 프로토타입 기반 언어에서는 **어떤 객체를 원형**으로 삼고 이를 복제(참조)함으로써 상속과 비슷한 효과를 얻는다. - 코어 자바스크립트
+1. **프로토타입 객체(Prototype Object)** - 다른 객체의 원형이 되는 객체
+2. **프로토타입 링크(Prototype Link)** - 객체 간의 참조를 연결하는 내부 메커니즘
 
-> 3. **프로토타입 객체**(또는 줄여서 프로토타입)란 객체지향 프로그래밍의 근간을 이루는 객체 간 상속을 구현하기 위해 사용된다.
+클래스 기반 언어(Java, C++ 등)에서는 클래스를 정의하고 인스턴스를 생성하는 방식으로 상속을 구현한다. 반면 자바스크립트는 **객체가 다른 객체를 직접 참조**하는 방식으로 상속과 유사한 효과를 낸다. 이것이 프로토타입 기반 언어의 핵심이다.
 
-즉, 자바스크립트에서 프로토타입의 개념은 `프로토타입 객체`(Prototype Object), `프로토타입 링크`(Prototype Link) 두 가지 개념을 가르킨다.
+## 프로토타입 객체와 프로토타입 링크
 
-1. Prototype Object - 객체의 원형(부모)
-2. Prototype Link - 객체와의 참조를 이어주는 링크(연결)
+### 프로토타입 객체(Prototype Object)
 
-## 🐬 2. 프로토타입 객체(Prototype Object) & 프로토타입 링크( Prototype Link)
+프로토타입 객체는 다른 객체의 **부모 역할**을 하는 객체다. 자식 객체는 프로토타입 객체의 프로퍼티와 메서드를 자신의 것처럼 사용할 수 있다. 이것이 자바스크립트에서 코드 재사용을 가능하게 하는 핵심 메커니즘이다.
 
-### 🦭 2-1 프로토타입 객체(Prototype Object)
+### 내부 슬롯 [[Prototype]]
 
-프로토타입 객체(줄여서 프로토타입)은 어떤 객체의 **`상위(부모) 객체`**의 역할을 하는 객체로서 다른 객체에 공유 프로퍼티(메서드 포함)를 제공한다. 프로토타입을 상속받은 하위(자식) 객체는 **상위 객체의 프로퍼티를 `자신의 프로퍼티처럼` 사용할 수 있다.**
+모든 객체는 `[[Prototype]]`이라는 내부 슬롯을 가진다. 이 슬롯에는 해당 객체의 프로토타입(부모 객체)에 대한 참조가 저장된다.
 
-### 🦭 2-2 내부슬롯 [[Prototype]]
-
-모든 객체는 [[Prototype]] 이라는 내부 슬롯을 가지며, 이 **내부 슬롯의 값**은 `상위(부모) 객체` 다. 즉, 객체는 내부슬롯 [[Prototype]]으로 부모 객체를 참조하고 있다고 말할 수 있다.
 ![](https://velog.velcdn.com/images/radin/post/64517b83-ab3a-402d-a66a-83f8af7233f1/image.png)
-[[Prototype]]에 저장되는 프로토타입은 `객체 생성 방식에 의해 결정`된다.
 
-- 객체 리터럴에 의해 생성된 객체 프로토타입 : Object.prototype
-- 생성자 함수에 의해 생성된 객체의 프로토타입 : 생성자 함수의 prototype 프로퍼티에 바인딩되어 있는 객체
+`[[Prototype]]`에 어떤 객체가 저장되는지는 **객체 생성 방식**에 따라 결정된다.
 
-### 🦭 2-3 프로토타입 링크(Prototype Link)
+| 생성 방식               | [[Prototype]] 값      |
+| ----------------------- | --------------------- |
+| 객체 리터럴 `{}`        | `Object.prototype`    |
+| 생성자 함수 `new Foo()` | `Foo.prototype`       |
+| `Object.create(proto)`  | 인자로 전달한 `proto` |
 
-`__proto__`속성은 **프로토타입 링크**라고 불리며 모든 객체에 존재하는 레퍼런스 속성이자 `객체의 원형을 참조`한다. 객체가 생성될 때 프로토타입이 결정되며 사용자가 임의로 변경할 수 있으며, **사용자가 임의로 변경**하는 특징을 사용해 `상속`을 구현할 수 있다.
+### 프로토타입 링크(**proto**)
 
-[[Prototype]]내부 슬롯에는 직접 접근할 수 없기 때문에 `__proto__`접근자 프로퍼티를 통해 자신의 프로토타입, 즉 자신의 [[Prototype]] 내부 슬롯이 가리키는 프로토타입에 `__proto__`를 통해 간접적으로 접근할 수 있다.
+`[[Prototype]]` 내부 슬롯에는 직접 접근할 수 없다. 대신 `__proto__` 접근자 프로퍼티를 통해 간접적으로 접근한다.
 
 ```javascript
 const student = {
   name: "Lee",
   score: 90,
 };
-// student에는 hasOwnProeprty 메서드가 없지만 아래 구문은 동작한다.
+
+// student 객체에는 hasOwnProperty 메서드가 없다.
+// 하지만 프로토타입 체인을 통해 Object.prototype의 메서드를 사용할 수 있다.
 console.log(student.hasOwnProperty("name")); // true
-console.dir(student);
 ```
 
 ![](https://velog.velcdn.com/images/radin/post/89cecc0a-535d-4329-a693-065f760dff96/image.png)
 
-### 🦭 2-4 [[Prototype]] vs prototype 프로퍼티
+> **실무 팁**: `__proto__`는 레거시 기능이다. 코드에서 프로토타입을 조작해야 한다면 `Object.getPrototypeOf()`와 `Object.setPrototypeOf()`를 사용하자.
 
-함수도 객체이므로 [[Prototype]] 내부 슬롯을 갖는다. 그런데 `함수 객체`는 **일반 객체**와 달리 `prototype 프로퍼티`도 소유하게 된다.
+### [[Prototype]] vs prototype 프로퍼티
 
-> prototype 프로퍼티와 [[Prototype]]은 모두 `프로토타입 객체`를 가리키지만 `관점의 차이`가 있다.
+이 부분이 가장 혼란스러운 지점이다. 둘 다 "프로토타입"이라는 단어를 쓰지만 역할이 다르다.
 
 ```javascript
 function Person(name) {
@@ -81,34 +79,42 @@ function Person(name) {
 
 const foo = new Person("Lee");
 
-console.dir(Person); // prototype 프로퍼티가 있다.
-console.dir(foo); // prototype 프로퍼티가 없다.
+console.dir(Person); // prototype 프로퍼티가 있다
+console.dir(foo); // prototype 프로퍼티가 없다
 ```
 
-- [[Prototype]]
-  - 함수를 포함한 `모든 객체`가 가지고 있는 내부 슬롯이다.
-  - `객체`의 입장에서 `자신의 부모` 역할을 하는 프로토타입 객체를 가리키며 `함수 객체`의 경우 `Function.prototype`를 가리킨다.
+**[[Prototype]] (내부 슬롯)**
+
+- **모든 객체**가 가지고 있다
+- 해당 객체의 **부모**를 가리킨다
+- 함수 객체의 경우 `Function.prototype`을 가리킨다
 
 ```javascript
-console.log(Person.__proto__ === Function.prototype);
+console.log(Person.__proto__ === Function.prototype); // true
 ```
 
-- prototype 프로퍼티
-  - `함수 객체만` 가지고 있는 프로퍼티이다.
-  - 함수 객체가 `생성자`로 사용될 때 이 함수를 통해 생성될 객체의 `부모 역할을 하는 객체`(프로토타입 객체)를 가리킨다.
+**prototype 프로퍼티**
+
+- **함수 객체만** 가지고 있다
+- 이 함수로 생성될 **인스턴스의 부모**가 될 객체를 가리킨다
 
 ```javascript
-console.log(Person.prototype === foo.__proto__);
+console.log(Person.prototype === foo.__proto__); // true
 ```
 
-> 💡 함수 객체만이 소유하는 prototype 프로퍼티는 non-constructor인 `화살표 함수`와 `메서드`는 prototype 프로퍼티를 소유하지 않으며 프로토타입도 생성하지 않는다.
+한 문장으로 정리하면: `[[Prototype]]`은 "내 부모는 누구인가"이고, `prototype` 프로퍼티는 "내가 만들 자식의 부모는 누구인가"다.
 
-- constructor: 함수 선언문, 함수표현식, 클래스
-- non-constructor: 화살표 함수, 메서드
+**주의할 점**: 화살표 함수와 ES6 메서드 축약 표현은 `prototype` 프로퍼티를 가지지 않는다. 따라서 생성자로 사용할 수 없다.
 
-### 🦭 2-5 프로토타입 삼각편대
+```javascript
+const ArrowFunc = () => {};
+console.log(ArrowFunc.prototype); // undefined
+new ArrowFunc(); // TypeError: ArrowFunc is not a constructor
+```
 
-프로토타입을 삼각편대로 표현한다면 `instance`, `constructor`, `prototype`으로 표현할 수 있다.
+### 프로토타입 관계도
+
+생성자 함수, 프로토타입 객체, 인스턴스 세 가지의 관계를 그림으로 표현하면 다음과 같다.
 
 ```javascript
 function Person(name) {
@@ -116,16 +122,20 @@ function Person(name) {
 }
 
 const radin = new Person("radin");
-console.log(Person.prototype == radin.__proto__);
+
+// 이 세 가지 관계를 이해하면 프로토타입의 90%는 이해한 것이다
+console.log(Person.prototype === radin.__proto__); // true
+console.log(Person.prototype.constructor === Person); // true
+console.log(radin.constructor === Person); // true (프로토타입 체인)
 ```
 
 ![](https://velog.velcdn.com/images/radin/post/3a0dbf32-2488-4747-b6f3-8bff268020aa/image.png)
 
-> 객체의 `__proto__` 접근자 프로퍼티와 함수 객체의 prototype 프로퍼티는 결국 동일한 프로토타입을 가리킨다.
+핵심은 인스턴스의 `__proto__`와 생성자 함수의 `prototype`이 **같은 객체를 가리킨다**는 점이다.
 
-## 🐬 3. constructor 프로퍼티
+## constructor 프로퍼티
 
-프로토타입 객체는 `constructor 프로퍼티`를 갖는다. 이 constructor 프로퍼티는 객체의 입장에서 `자신을 생성한 객체`를 가리킨다.
+프로토타입 객체는 `constructor` 프로퍼티를 가진다. 이 프로퍼티는 해당 프로토타입과 연결된 생성자 함수를 가리킨다.
 
 ```javascript
 function Person(name) {
@@ -134,112 +144,179 @@ function Person(name) {
 
 const foo = new Person("Lee");
 
-// Person() 생성자 함수에 의해 생성된 객체를 생성한 객체는 Person() 생성자 함수이다.
-console.log(Person.prototype.constructor === Person);
+// 프로토타입의 constructor는 생성자 함수를 가리킨다
+console.log(Person.prototype.constructor === Person); // true
 
-// foo 객체를 생성한 객체는 Person() 생성자 함수이다.
-console.log(foo.constructor === Person);
+// 인스턴스도 프로토타입 체인을 통해 constructor에 접근할 수 있다
+console.log(foo.constructor === Person); // true
 
-// Person() 생성자 함수를 생성한 객체는 Function() 생성자 함수이다.
-console.log(Person.constructor === Function);
+// 함수 자체의 constructor는 Function을 가리킨다
+console.log(Person.constructor === Function); // true
 ```
 
-1️⃣ Person() 생성자 함수에 의해 객체 foo가 생성
-2️⃣ foo 객체를 생성한 객체는 Person() 생성자 함수이다.
-3️⃣ foo 객체 입장에서 자신을 생성한 객체는 Person() 생성자 함수이며, foo 객체의 프로토타입 객체는 `Person.prototype`이다.
-즉, 프로토타입 객체 `Person.prototype`의 `constructor 프로퍼티`는 **Person() 생성자 함수**를 가리킨다.
+`constructor` 프로퍼티는 실무에서 인스턴스의 생성자를 확인하거나, 동일한 생성자로 새 인스턴스를 만들 때 유용하다.
 
-## 🐬 4. 프로토타입 체인
+```javascript
+// 인스턴스로부터 같은 타입의 새 객체 생성
+const bar = new foo.constructor("Kim");
+console.log(bar instanceof Person); // true
+```
 
-프로토타입 체인은 `__proto__`링크를 따라 `단방향`으로 부모 역할을 하는 프로토타입 객체의 **프로퍼티**나 **메소드**를 차례대로 검색하는 것을 말한다.
+## 프로토타입 체인
+
+프로토타입 체인은 자바스크립트의 프로퍼티/메서드 검색 메커니즘이다. 객체에서 프로퍼티를 찾을 때, 해당 객체에 없으면 `[[Prototype]]` 링크를 따라 상위 객체에서 찾고, 없으면 또 상위로... 이 과정을 반복한다.
 
 ```javascript
 const array = [];
+
+// array 자체에는 hasOwnProperty가 없다
 array.hasOwnProperty("hasOwnProperty"); // false
+
+// 하지만 프로토타입 체인을 통해 Object.prototype의 메서드를 사용할 수 있다
 array.hasOwnProperty("length"); // true
 ```
 
-array이의 프로퍼티에는 `hasOwnProperty 메서드가 없지만` 정상적으로 동작하는 이유도 프로토타입 체인을 통해 상위 프로토타입객체의 프로퍼티나 메서드를 검색하였기 때문에 가능하였다 이 검색해 나가는 과정을 `프로토타입 체이닝`이라고 한다.
+검색 순서를 따라가보면:
+
+1. `array` 객체에서 `hasOwnProperty` 검색 → 없음
+2. `array.__proto__` (= `Array.prototype`)에서 검색 → 없음
+3. `Array.prototype.__proto__` (= `Object.prototype`)에서 검색 → **있음!**
 
 ![](https://velog.velcdn.com/images/radin/post/2e30e2ec-63fc-4959-9bec-a693f0078e42/image.png)
 
-> 💡프로토타입 체인 최상단 종점은 `Object.prototype`이다.
-
-## 🐬 5. 오버라이딩과 프로퍼티 섀도잉
-
-> 💡오버라이딩 개념은 자바스크립트 뿐만 아닌 `객체 지향형 프로그래밍` 언어에 모두 사용되고 있는 공통 용어이다.
-
-- 오버라이딩 - 상위 클래스가 가지고 있는 메서드를 `하위 클래스가 재정의`하여 사용하는 방식
-- 오버로딩 - 함수의 이름은 동일하지만 매개변수의 타입 또는 개수가 다른 메서드를 구현하고 매개변수에 의해 메서드를 구별하여 호출하는 방식이다. 자바스크립트는 오버로딩을 지원하지 않지만 arguemnts객체를 사용하여 구현할 수 있다.
+프로토타입 체인의 종점은 항상 `Object.prototype`이고, 그 위는 `null`이다. 체인 끝까지 찾지 못하면 `undefined`를 반환한다.
 
 ```javascript
-const Person = (function () {
-  // 생성자 함수
-  function Person(name) {
-    this.name = name;
-  }
-  // 프로토타입 메서드
-  Person.prototype.sayHello = function () {
-    console.log(`Hi! My name is ${this.name}`);
-  };
-  // 생성자 함수 반환
-  return Person;
-})();
+console.log(Object.prototype.__proto__); // null
+console.log(array.nonExistentMethod); // undefined
+```
+
+## 오버라이딩과 프로퍼티 섀도잉
+
+프로토타입 체인에서 같은 이름의 프로퍼티가 여러 단계에 존재하면 어떻게 될까?
+
+```javascript
+function Person(name) {
+  this.name = name;
+}
+
+// 프로토타입에 메서드 정의
+Person.prototype.sayHello = function () {
+  console.log(`Hi! My name is ${this.name}`);
+};
 
 const me = new Person("Lee");
-// 인스턴스 메서드
+
+// 인스턴스에 같은 이름의 메서드 추가
 me.sayHello = function () {
   console.log(`Hey! My name is ${this.name}`);
 };
-// 인스턴스 메서드가 호출된다. 프로토타입 메서드는 인스턴스 메서드에 의해 가려진다.
-me.sayHello(); // Hey! My name is Lee
+
+me.sayHello(); // "Hey! My name is Lee"
 ```
 
-생성자 함수로 객체(인스턴스)를 생성한 다음, 인스턴스 메서드를 추가하였다. 그림으로 나타내면 아래와 같다.
+인스턴스에 같은 이름의 프로퍼티를 추가하면, 프로토타입의 프로퍼티를 **덮어쓰는 게 아니라** 인스턴스에 새로운 프로퍼티가 생성된다. 프로토타입 체인은 **가장 먼저 찾은 프로퍼티를 사용**하므로 프로토타입의 메서드는 가려진다.
+
 ![](https://velog.velcdn.com/images/radin/post/00acf029-80c5-4a20-b4e8-23eda0ef012b/image.png)
-프로토타입 프로퍼티와 같은 이름의 `프로퍼티를 인스턴스`에 추가하면 프로토타입 체인을 따라 프로토타입 프로퍼티를 검색하여 프로토타입 프로퍼티를 덮는 것이 아닌 `인스턴스 프로퍼티`로 추가한다.
-인스턴스 메서드 sayHello는 프로토타입 메서드 sayHello `오버라이딩` 했고, 프로토타입 메서드 sayHello는 가려진다. 이처럼 상속 관계에 의해 프로퍼티가 가려지는 현상을 `프로퍼티 섀도잉`(property shadowing)이라 한다.
 
-## 🐬 6. 프로토타입 상속에 대한 오해
+이 현상을 **프로퍼티 섀도잉(Property Shadowing)**이라 한다. 상위 프로퍼티가 하위 프로퍼티에 의해 가려지는 것이다.
 
-> 프로토타입에서 자주 거론되는 `상속`은 클래스 기반 객체지향 언어에서 말하는 상속과 다르다.
-
-🙎‍♂️ 자바스크립트에서 ES6에 추가된 class는 생성자 함수와 동일하게 동작한다.
-=> 프로토타입기반으로 동일하게 동작한다.
+프로토타입의 원본 메서드에 접근하려면 명시적으로 호출해야 한다.
 
 ```javascript
+// 인스턴스 메서드가 아닌 프로토타입 메서드 직접 호출
+Person.prototype.sayHello.call(me); // "Hi! My name is Lee"
+```
+
+## 상속이 아닌 위임(Delegation)
+
+자바스크립트의 프로토타입을 "상속"이라고 표현하지만, 엄밀히 말하면 클래스 기반 언어의 상속과는 다르다.
+
+```javascript
+// ES6 class와 생성자 함수는 내부적으로 동일하게 동작한다
 class Person {
   constructor(name, age) {
-    ((this.name = name), (this.age = age));
+    this.name = name;
+    this.age = age;
   }
 }
+
 function Person2(name, age) {
   this.name = name;
   this.age = age;
 }
-// class로 생성
+
 const person = new Person("minsu", 20);
-// 생성자 함수로 생성
 const person2 = new Person2("minsu", 20);
 ```
 
-다른 **클래스 기반 객체지향 언어의 class**와 **자바스크립트 class**는 다르게 동작한다. 이부분때문에 `상속`에 대하여 오해하는 부분이 있다. 자바스크립트에서 `복사` 를 통한 상속은 없다. 만들어진 인스턴스 내에 데이터가 새로 복사한게 아닌 원형(부모)객체를 `참조`함으로서 **상속처럼 구현**을 한 것이다. 즉, 상속 보다는 부모로 부터 `위임(참조)`한다고 말할 수 있다.
+Java나 C++에서 상속은 부모 클래스의 프로퍼티와 메서드를 자식 클래스로 **복사**하는 것이다. 하지만 자바스크립트에서는 복사가 일어나지 않는다. 인스턴스는 프로토타입 객체를 **참조**할 뿐이다.
 
-## 마무리
+따라서 "상속"보다 "위임(Delegation)"이 더 정확한 표현이다. 인스턴스가 특정 메서드를 호출하면, 해당 인스턴스에 없을 경우 프로토타입에게 처리를 위임하는 것이다.
 
-처음 프로토타입에 대해 공부할때 자바의 객체지향 시점으로 이해할려고 해서 상당히 헷갈렸던 기억이 난다. 그 후에도 용어부터 제대로 정리하지 않고 책과 참고 아티클들을 봤더니 혼란이 더욱 가중 되었다. 새로운 정보를 학습할때 용어에 대한 개념을 확실히 알고 단계별로 나아가야 이해의 흐름을 이어나갈 수 있는 것 같다.
+```javascript
+// 프로토타입을 수정하면 이미 생성된 인스턴스에도 영향을 준다
+// 복사였다면 이런 일이 일어나지 않는다
+Person.prototype.greet = function () {
+  console.log(`Hello, I'm ${this.name}`);
+};
+
+person.greet(); // "Hello, I'm minsu" - 이미 생성된 인스턴스에서도 사용 가능
+```
+
+이 점을 이해하면 프로토타입 체인의 동적인 특성과 메모리 효율성을 이해할 수 있다.
+
+## 실무에서 프로토타입
+
+마지막으로 실무에서 프로토타입을 다룰 때 알아두면 좋은 점들을 정리한다.
+
+**내장 객체의 프로토타입 수정은 피하자**
+
+```javascript
+// 안티패턴: 내장 객체 프로토타입 확장
+Array.prototype.last = function () {
+  return this[this.length - 1];
+};
+```
+
+내장 객체의 프로토타입을 수정하면 다른 라이브러리와 충돌할 수 있고, 코드 예측이 어려워진다. 유틸리티 함수를 별도로 만들어 사용하자.
+
+**성능 고려사항**
+
+프로토타입 체인이 깊으면 프로퍼티 검색에 시간이 더 걸린다. 자주 접근하는 프로퍼티는 인스턴스에 직접 저장하는 것이 유리할 수 있다.
+
+**instanceof의 동작 원리**
+
+`instanceof`는 프로토타입 체인을 검사한다. 이 점을 알면 디버깅에 도움이 된다.
+
+```javascript
+console.log([] instanceof Array); // true
+console.log([] instanceof Object); // true (체인에 Object.prototype이 있음)
+```
+
+## 마치며
+
+프로토타입은 자바스크립트의 객체 시스템을 이해하는 열쇠다. ES6 클래스 문법이 널리 사용되면서 프로토타입을 직접 다룰 일은 줄었지만, 클래스도 결국 프로토타입 위에서 동작한다. 라이브러리 코드를 읽거나, 상속 관련 버그를 디버깅하거나, 기술 인터뷰를 준비할 때 이 개념은 반드시 필요하다.
+
+핵심만 기억하자:
+
+- 모든 객체는 `[[Prototype]]`으로 다른 객체를 참조한다
+- 프로퍼티 검색은 프로토타입 체인을 따라 올라간다
+- 자바스크립트의 "상속"은 복사가 아닌 참조(위임)다
 
 ## Reference
 
-> 참고 도서
-> [모던 자바스크립트 Deep Dive](https://www.aladin.co.kr/shop/wproduct.aspx?ItemId=251552545&start=slayer)
-> [코어 자바스크립트](https://www.aladin.co.kr/shop/wproduct.aspx?ItemId=206513031)
+**도서**
 
-> 참고 영상
-> [10분 테크톡 - 크리스의 Prototype](https://www.youtube.com/watch?v=RYxgNZW3wl0)
-> [10분 테크톡 - 아놀드의 프로토타입 뽀개기](https://www.youtube.com/watch?v=TqFwNFTa3c4)
+- [모던 자바스크립트 Deep Dive](https://www.aladin.co.kr/shop/wproduct.aspx?ItemId=251552545&start=slayer)
+- [코어 자바스크립트](https://www.aladin.co.kr/shop/wproduct.aspx?ItemId=206513031)
+
+**영상**
+
+- [10분 테크톡 - 크리스의 Prototype](https://www.youtube.com/watch?v=RYxgNZW3wl0)
+- [10분 테크톡 - 아놀드의 프로토타입 뽀개기](https://www.youtube.com/watch?v=TqFwNFTa3c4)
 
 > 참고 자료
 > [Object prototypes - mdn](https://developer.mozilla.org/ko/docs/Learn/JavaScript/Objects/Object_prototypes)
+
 > [자바스크립트는 왜 프로토타입을 선택했을까 - 임성묵](https://medium.com/@limsungmook/%EC%9E%90%EB%B0%94%EC%8A%A4%ED%81%AC%EB%A6%BD%ED%8A%B8%EB%8A%94-%EC%99%9C-%ED%94%84%EB%A1%9C%ED%86%A0%ED%83%80%EC%9E%85%EC%9D%84-%EC%84%A0%ED%83%9D%ED%96%88%EC%9D%84%EA%B9%8C-997f985adb42)
-> [JavaScript : 프로토타입(prototype) 이해 - 넥스트리소프트](https://www.nextree.co.kr/p7323/)
