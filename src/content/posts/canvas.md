@@ -2,7 +2,7 @@
 title: Canvas 적용하며 알아보기
 description: Canvas를 설정하고 적용하며 알아가보자
 author: "jinseoit"
-image: "https://i.namu.wiki/i/DYRmm5oZ1n9UjS933J9oewBwNfnJYhXzHXp-82cj4CtZS48tx3dH3L9_sZ4-ntSydX_ZA6e4RHjphejMzQa5FCYO0cL6MCbjtXuy6znyfdE9oo0gnTC2zaukIJm9wKabBwBzLaQ9deHM3ntf2ttGmg.svg"
+image: "https://www.sdccd.edu/departments/educational-services/online/images/canvas_lms.png"
 published: 2026-02-21
 tags: [canvas]
 draft: true
