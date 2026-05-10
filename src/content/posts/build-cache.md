@@ -1,8 +1,8 @@
 ---
-title: "Temp"
-description: "Temp"
-author: "Temp"
-image: "/blog-placeholder-1.jpg"
+title: "정적 사이트 캐싱전략"
+description: "정적 사이트 배포, 왜 수정 사항이 반영되지 않을까"
+author: "jinseoit"
+image: "/images/cdn-thumnail.webp"
 published: 2026-05-10T08:05:56.017Z
 tags: []
 draft: true
