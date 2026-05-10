@@ -3,7 +3,7 @@ title: Canvas 적용하며 알아보기
 description: Canvas를 설정하고 적용하며 알아가보자
 author: "jinseoit"
 image: "/images/canvas.webp"
-published: 2026-02-21
+published: 2026-03-21
 tags: [canvas]
 draft: true
 ---
